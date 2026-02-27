@@ -6,13 +6,16 @@ import { resolveOutputRoot } from "../utils/project.js";
 
 const ImageGenSchema = Type.Object({
   project_id: Type.String({ description: "Project ID (video_id)." }),
-  shot_index: Type.Number({ description: "Shot number, starting from 1." }),
-  prompt: Type.String({ description: "Visual description for the image (English)." }),
+  character_id: Type.String({ description: "Character identifier, e.g. 'char_01'." }),
+  prompt: Type.String({
+    description:
+      "Character design sheet prompt (English). Must include visual style, full-body reference with front/side/back views on white background.",
+  }),
   aspect_ratio: Type.Optional(
-    Type.String({ description: 'Aspect ratio, e.g. "16:9". Default "16:9".' }),
+    Type.String({ description: 'Aspect ratio. Default "9:16" for Sora2 mode.' }),
   ),
   reference_image: Type.Optional(
-    Type.String({ description: "Reference image path or URL (optional)." }),
+    Type.String({ description: "Reference image URL for style consistency (optional)." }),
   ),
 });
 
@@ -21,14 +24,14 @@ export function createImageGenTool(opts: { outputRoot?: string }) {
     label: "Image Gen",
     name: "image_gen",
     description:
-      "Generate a keyframe image for a video shot. Returns the local file path of the saved image.",
+      "Generate a character design sheet image via ARK API. Returns the image URL and local file path.",
     parameters: ImageGenSchema,
     execute: async (_toolCallId: string, args: unknown) => {
       const params = args as Record<string, unknown>;
       const projectId = params.project_id as string;
-      const shotIndex = params.shot_index as number;
+      const characterId = params.character_id as string;
       const prompt = params.prompt as string;
-      const aspectRatio = (params.aspect_ratio as string) ?? "16:9";
+      const aspectRatio = (params.aspect_ratio as string) ?? "9:16";
       const referenceImage = params.reference_image as string | undefined;
 
       const apiKey = process.env.ARK_TOKEN ?? process.env.ARK_API_KEY;
@@ -38,21 +41,25 @@ export function createImageGenTool(opts: { outputRoot?: string }) {
 
       const root = resolveOutputRoot(opts.outputRoot);
       const projectDir = path.join(root, "projects", projectId);
-      const imagesDir = path.join(projectDir, "images");
-      await fs.mkdir(imagesDir, { recursive: true });
+      const charsDir = path.join(projectDir, "characters");
+      await fs.mkdir(charsDir, { recursive: true });
 
-      const shotLabel = String(shotIndex).padStart(2, "0");
-      const destPath = path.join(imagesDir, `shot_${shotLabel}.png`);
+      const destPath = path.join(charsDir, `${characterId}.png`);
 
-      await generateImage(
+      const result = await generateImage(
         { prompt, aspectRatio, referenceImageUrl: referenceImage, apiKey },
         destPath,
       );
 
-      const relPath = `images/shot_${shotLabel}.png`;
+      const relPath = `characters/${characterId}.png`;
       return {
-        content: [{ type: "text", text: `Image saved: ${relPath}` }],
-        details: { imagePath: destPath, projectId, shotIndex },
+        content: [
+          {
+            type: "text",
+            text: `Character design saved: ${relPath}\nimageUrl: ${result.imageUrl}`,
+          },
+        ],
+        details: { imagePath: destPath, imageUrl: result.imageUrl, projectId, characterId },
       };
     },
   };

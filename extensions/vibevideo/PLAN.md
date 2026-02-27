@@ -70,7 +70,7 @@ extensions/vibevideo/
 ~/vibevideo/output/
 └── projects/
     └── <video_id>/
-        ├── script.json          # 分镜脚本 (agent 生成)
+        ├── script.md            # 分镜脚本 (agent 生成，Markdown 格式)
         ├── images/
         │   ├── shot_01.png      # 关键帧图片
         │   ├── shot_02.png
@@ -303,17 +303,26 @@ SKILL.md 是 agent 的"导演手册"，引导 LLM 按正确流程工作。放在
 
 ## Step 1: 分镜脚本
 
-根据用户需求，生成 JSON 格式的分镜脚本，包含：
-- title: 视频标题
-- aspect_ratio: 画面比例（"16:9" 或 "9:16"）
-- shots: 镜头数组，每个镜头包含：
-  - index: 镜头序号
-  - visual_prompt: 画面描述（英文，用于图片/视频生成）
-  - motion_prompt: 运动描述（英文，用于 Sora2 视频生成）
-  - duration: 时长秒数（1-15）
-- bgm_prompt: 背景音乐风格描述
+根据用户需求，生成 Markdown 格式的分镜脚本（`script.md`），格式如下：
 
-将脚本保存到项目目录后，进入素材生成阶段。
+```
+# 视频标题
+
+- 画面比例: 16:9
+- BGM 风格: cyberpunk ambient, dark synth
+
+## Shot 1 (5s)
+
+**画面描述:** A futuristic cityscape at night...
+**运动描述:** Slow dolly forward through neon-lit streets...
+
+## Shot 2 (4s)
+
+**画面描述:** Close-up of a robot's face...
+**运动描述:** Camera slowly zooms into the glowing eyes...
+```
+
+将脚本保存到项目目录的 `script.md` 后，进入素材生成阶段。
 
 ## Step 2: 素材生成
 

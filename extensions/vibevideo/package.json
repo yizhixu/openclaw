@@ -1,0 +1,12 @@
+{
+  "name": "@openclaw/vibevideo",
+  "version": "0.1.0",
+  "description": "AI video generation plugin for OpenClaw",
+  "type": "module",
+  "dependencies": {
+    "@sinclair/typebox": "0.34.48"
+  },
+  "openclaw": {
+    "extensions": ["./index.ts"]
+  }
+}

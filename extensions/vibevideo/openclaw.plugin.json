@@ -1,0 +1,15 @@
+{
+  "id": "vibevideo",
+  "name": "Vibe Video",
+  "description": "AI video production pipeline: image generation, video generation, BGM generation, and video composition.",
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "outputRoot": {
+        "type": "string",
+        "description": "Root directory for generated media files."
+      }
+    }
+  }
+}

@@ -1,6 +1,6 @@
-import { Type } from "@sinclair/typebox";
-import path from "node:path";
 import fs from "node:fs/promises";
+import path from "node:path";
+import { Type } from "@sinclair/typebox";
 import { generateImage } from "../api/image-providers.js";
 import { resolveOutputRoot } from "../utils/project.js";
 
@@ -8,8 +8,12 @@ const ImageGenSchema = Type.Object({
   project_id: Type.String({ description: "Project ID (video_id)." }),
   shot_index: Type.Number({ description: "Shot number, starting from 1." }),
   prompt: Type.String({ description: "Visual description for the image (English)." }),
-  aspect_ratio: Type.Optional(Type.String({ description: 'Aspect ratio, e.g. "16:9". Default "16:9".' })),
-  reference_image: Type.Optional(Type.String({ description: "Reference image path or URL (optional)." })),
+  aspect_ratio: Type.Optional(
+    Type.String({ description: 'Aspect ratio, e.g. "16:9". Default "16:9".' }),
+  ),
+  reference_image: Type.Optional(
+    Type.String({ description: "Reference image path or URL (optional)." }),
+  ),
 });
 
 export function createImageGenTool(opts: { outputRoot?: string }) {
@@ -27,9 +31,9 @@ export function createImageGenTool(opts: { outputRoot?: string }) {
       const aspectRatio = (params.aspect_ratio as string) ?? "16:9";
       const referenceImage = params.reference_image as string | undefined;
 
-      const apiKey = process.env.ARK_API_KEY;
+      const apiKey = process.env.ARK_TOKEN ?? process.env.ARK_API_KEY;
       if (!apiKey) {
-        throw new Error("ARK_API_KEY environment variable is required");
+        throw new Error("ARK_TOKEN (or ARK_API_KEY) environment variable is required");
       }
 
       const root = resolveOutputRoot(opts.outputRoot);
